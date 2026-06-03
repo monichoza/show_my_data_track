@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings version="2">
+    <section id="general" label="General">
+        <category id="trakt_credentials" label="Trakt API Credentials">
+            <setting id="client_id" type="text" label="Client ID" default="" subsetting="true"/>
+            <setting id="client_secret" type="text" label="Client Secret" default="" option="hidden"/>
+        </category>
+        <category id="auth_status" label="Authentication">
+            <setting id="auth_button" type="action" label="Authorize with Trakt" action="RunScript(script.trakt,auth)"/>
+            <setting id="access_token" type="text" label="Access Token" default="" visible="false"/>
+            <setting id="refresh_token" type="text" label="Refresh Token" default="" visible="false"/>
+            <setting id="expires_at" type="text" label="Token Expires" default="" visible="false"/>
+        </category>
+    </section>
+    <section id="display" label="Display Options">
+        <category id="list_options" label="List Options">
+            <setting id="sort_order" type="select" label="Sort Order" values="Title|Year|Recently Watched" default="Recently Watched"/>
+            <setting id="include_plays" type="bool" label="Include play count" default="true"/>
+            <setting id="show_posters" type="bool" label="Show posters" default="true"/>
+        </category>
+        <category id="refresh" label="Data Refresh">
+            <setting id="auto_refresh" type="bool" label="Auto-refresh data" default="true"/>
+            <setting id="refresh_interval" type="number" label="Refresh interval (hours)" default="6" range="1,24"/>
+        </category>
+    </section>
+</settings>
