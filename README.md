@@ -31,7 +31,7 @@ A Kodi addon to display your watched movies and TV shows from your Trakt.tv acco
 
 ### 2. Install the Addon
 
-1. Copy the `script.trakt.watchlist` folder to your Kodi addons directory:
+1. Copy the `plugin.trakt.watchlist` folder to your Kodi addons directory:
    - Linux: `~/.kodi/addons/`
    - macOS: `~/Library/Application Support/Kodi/addons/`
    - Windows: `%APPDATA%\Kodi\addons\`
@@ -71,11 +71,10 @@ This addon uses the Trakt.tv API to fetch your watch history:
 ## Directory Structure
 
 ```
-script.trakt.watchlist/
-├── addon.xml           # Addon manifest
+plugin.trakt.watchlist/
+├── addon.xml           # Addon manifest (video plugin)
 ├── default.py          # Main entry point
 ├── service.py          # Background service
-├── menu.py             # Menu integration
 ├── icon.png            # Addon icon
 ├── fanart.jpg          # Addon fanart
 └── resources/

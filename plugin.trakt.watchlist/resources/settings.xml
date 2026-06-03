@@ -6,7 +6,7 @@
             <setting id="trakt_client_secret" type="text" label="Client Secret" default="" option="hidden"/>
         </category>
         <category id="auth_status" label="Authentication">
-            <setting id="auth_button" type="action" label="Authorize with Trakt" action="RunScript(script.trakt.watchlist,action,auth)"/>
+            <setting id="auth_button" type="action" label="Authorize with Trakt" action="RunScript(plugin.trakt.watchlist,action,auth)"/>
             <setting id="trakt_username" type="text" label="Username (optional)" default="" subsetting="true"/>
         </category>
     </section>
