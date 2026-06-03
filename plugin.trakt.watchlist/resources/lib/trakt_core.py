@@ -8,7 +8,6 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 from trakt import Trakt
-from trakt.errors import RateLimitException, TraktException
 
 
 class TraktWatchlist:
