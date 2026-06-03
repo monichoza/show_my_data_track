@@ -52,17 +52,17 @@ def display_movies(movies):
     for movie in movies:
         title = movie.get('title', 'Unknown')
         year = movie.get('year', '')
-        plays = movie.get('plays', 0)
+        watched_at = movie.get('watched_at', '')
         
         label = f'{title} ({year})' if year else title
-        if plays > 1:
-            label += f' [x{plays}]'
+        if watched_at:
+            label += f' [Last: {watched_at[:10]}]'
         
         li = xbmcgui.ListItem(label=label)
         li.setInfo('video', {
             'title': title,
             'year': year,
-            'playCount': plays
+            'premiered': watched_at[:10] if watched_at else ''
         })
         li.setProperty('IsPlayable', 'false')
         
@@ -83,6 +83,7 @@ def display_shows(shows):
         title = show.get('title', 'Unknown')
         year = show.get('year', '')
         episode_count = show.get('episode_count', 0)
+        seasons = show.get('seasons', [])
         
         label = f'{title} ({year})' if year else title
         label += f' [{episode_count} episodes]'
@@ -112,10 +113,29 @@ def display_movie_detail(movie_id, title):
 def display_show_detail(show_id, title):
     """Display show detail with seasons."""
     trakt = get_trakt_watchlist()
+    shows = trakt.get_watched_shows()
     
-    # Show seasons as folders
-    for season_num in range(1, 11):  # Example: seasons 1-10
-        label = f'Season {season_num}'
+    # Find the show data
+    show_data = None
+    for show in shows:
+        if str(show.get('ids', {}).get('trakt', '')) == str(show_id):
+            show_data = show
+            break
+    
+    if not show_data:
+        xbmcplugin.endOfDirectory(ADDON_HANDLE)
+        return
+    
+    seasons = show_data.get('seasons', [])
+    for season in seasons:
+        season_num = season.get('number', 0)
+        ep_count = season.get('episode_count', 0)
+        
+        if season_num == 0:  # Specials
+            label = f'Specials [{ep_count} episodes]'
+        else:
+            label = f'Season {season_num} [{ep_count} episodes]'
+        
         li = xbmcgui.ListItem(label=label)
         li.setInfo('video', {'season': season_num})
         xbmcplugin.addDirectoryItem(ADDON_HANDLE, get_url('season_detail', show=show_id, season=season_num, title=title), li, isFolder=True)
@@ -126,10 +146,9 @@ def display_show_detail(show_id, title):
 
 def display_season_detail(show_id, season, title):
     """Display episodes in a season."""
-    trakt = get_trakt_watchlist()
-    
-    # Example episodes
-    for ep in range(1, 13):  # Example episodes
+    # For now, just show placeholder episodes
+    # In a full implementation, you'd get the actual episode data from Trakt
+    for ep in range(1, 13):
         label = f'S{season:02d}E{ep:02d} - Episode {ep}'
         li = xbmcgui.ListItem(label=label)
         li.setInfo('video', {

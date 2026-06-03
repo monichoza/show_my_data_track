@@ -7,11 +7,8 @@ Simplified wrapper for fetching watched movies and shows.
 import xbmc
 import xbmcaddon
 import xbmcgui
-import trakt
-from trakt.users import User
-from trakt.movies import Movie
-from trakt.tv import TVShow
-from trakt.media_map import MediaMap
+from trakt import Trakt
+from trakt.errors import RateLimitException, TraktException
 
 
 class TraktWatchlist:
@@ -19,29 +16,46 @@ class TraktWatchlist:
     
     def __init__(self):
         self.addon = xbmcaddon.Addon()
-        self.client_id = self.addon.getSetting('trakt_client_id')
-        self.client_secret = self.addon.getSetting('trakt_client_secret')
-        self.username = self.addon.getSetting('trakt_username')
     
     def configure(self):
         """Configure Trakt library with credentials."""
-        trakt.api_key(self.client_id)
-        trakt.client_secret(self.client_secret)
-        
+        client_id = self.addon.getSetting('trakt_client_id')
+        client_secret = self.addon.getSetting('trakt_client_secret')
         access_token = self.addon.getSetting('trakt_access_token')
+        
+        Trakt.configuration.defaults.client(
+            id=client_id,
+            secret=client_secret
+        )
         if access_token:
-            trakt.oauth.token(access_token)
+            Trakt.oauth.token(access_token)
+    
+    def _get_username(self):
+        """Get username from settings or use 'me'."""
+        return self.addon.getSetting('trakt_username') or 'me'
     
     def get_watched_movies(self):
         """Get list of watched movies from Trakt."""
         try:
             self.configure()
-            if not self.username:
-                self.username = 'me'
             
-            user = User(self.username)
-            movies = user.watched_movies
-            return self._parse_movies(movies) if movies else []
+            movies_response = Trakt['sync/watched'].movies
+            if not movies_response:
+                return []
+            
+            result = []
+            for movie in movies_response.values:
+                result.append({
+                    'title': getattr(movie, 'title', 'Unknown'),
+                    'year': getattr(movie, 'year', ''),
+                    'watched_at': getattr(movie, 'watched_at', ''),
+                    'ids': {
+                        'trakt': getattr(movie, 'trakt', ''),
+                        'imdb': getattr(movie, 'imdb', ''),
+                        'tmdb': getattr(movie, 'tmdb', ''),
+                    }
+                })
+            return result
         except Exception as e:
             xbmc.log(f'Trakt Watchlist: Error fetching movies - {e}', xbmc.LOGERROR)
             return []
@@ -50,60 +64,49 @@ class TraktWatchlist:
         """Get list of watched shows from Trakt."""
         try:
             self.configure()
-            if not self.username:
-                self.username = 'me'
             
-            user = User(self.username)
-            shows = user.watched_shows
-            return self._parse_shows(shows) if shows else []
+            shows_response = Trakt['sync/watched'].shows
+            if not shows_response:
+                return []
+            
+            result = []
+            for show in shows_response.values:
+                # Count total episodes
+                episode_count = 0
+                seasons_data = []
+                for season in show.seasons:
+                    ep_count = len(season.episodes)
+                    episode_count += ep_count
+                    seasons_data.append({
+                        'number': season.number,
+                        'episode_count': ep_count
+                    })
+                
+                result.append({
+                    'title': getattr(show, 'title', 'Unknown'),
+                    'year': getattr(show, 'year', ''),
+                    'episode_count': episode_count,
+                    'seasons': seasons_data,
+                    'ids': {
+                        'trakt': getattr(show, 'trakt', ''),
+                        'tvdb': getattr(show, 'tvdb', ''),
+                        'imdb': getattr(show, 'imdb', ''),
+                        'tmdb': getattr(show, 'tmdb', ''),
+                    }
+                })
+            return result
         except Exception as e:
             xbmc.log(f'Trakt Watchlist: Error fetching shows - {e}', xbmc.LOGERROR)
             return []
-    
-    def _parse_movies(self, movies):
-        """Parse movie objects into dictionaries."""
-        result = []
-        for movie in movies:
-            result.append({
-                'title': getattr(movie, 'title', 'Unknown'),
-                'year': getattr(movie, 'year', ''),
-                'plays': getattr(movie, 'plays', 0),
-                'last_watched': getattr(movie, 'last_watched_at', ''),
-                'ids': {
-                    'trakt': getattr(movie, 'trakt', ''),
-                    'imdb': getattr(movie, 'imdb', ''),
-                    'tmdb': getattr(movie, 'tmdb', ''),
-                }
-            })
-        return result
-    
-    def _parse_shows(self, shows):
-        """Parse show objects into dictionaries."""
-        result = []
-        for show in shows:
-            result.append({
-                'title': getattr(show, 'title', 'Unknown'),
-                'year': getattr(show, 'year', ''),
-                'episode_count': getattr(show, 'episode_count', 0),
-                'seasons': getattr(show, 'seasons', []),
-                'ids': {
-                    'trakt': getattr(show, 'trakt', ''),
-                    'tvdb': getattr(show, 'tvdb', ''),
-                    'imdb': getattr(show, 'imdb', ''),
-                    'tmdb': getattr(show, 'tmdb', ''),
-                }
-            })
-        return result
     
     def get_user_profile(self):
         """Get user profile info."""
         try:
             self.configure()
-            user = User('me')
+            user = Trakt['users'].profile(username=self._get_username())
             return {
-                'username': user.username,
+                'username': getattr(user, 'username', 'Unknown'),
                 'name': getattr(user, 'name', ''),
-                'joined_at': getattr(user, 'created_at', '')
             }
         except Exception as e:
             xbmc.log(f'Trakt Watchlist: Error fetching profile - {e}', xbmc.LOGERROR)
@@ -111,7 +114,9 @@ class TraktWatchlist:
     
     def is_configured(self):
         """Check if Trakt is configured with credentials."""
-        return bool(self.client_id and self.client_secret)
+        client_id = self.addon.getSetting('trakt_client_id')
+        client_secret = self.addon.getSetting('trakt_client_secret')
+        return bool(client_id and client_secret)
 
 
 def get_trakt_watchlist():
