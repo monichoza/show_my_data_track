@@ -10,6 +10,10 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 import xbmcplugin
+try:
+    from urllib.parse import parse_qsl
+except ImportError:
+    from urlparse import parse_qsl
 from resources.lib.trakt_core import get_trakt_watchlist
 
 ADDON = xbmcaddon.Addon()
@@ -165,7 +169,7 @@ def display_season_detail(show_id, season, title):
 
 def router(paramstring):
     """Route commands based on parameters."""
-    params = dict(xbmc.parseQuery(paramstring))
+    params = dict(parse_qsl(paramstring))
     action = params.get('action', '')
     
     if not action:
