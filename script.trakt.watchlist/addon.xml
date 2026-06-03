@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="script.trakt.watchlist" version="1.0.0" name="Trakt Watchlist" provider-name="show_my_data_track" extensionpoint="xbmc.python.script">
+<addon id="script.trakt.watchlist" version="1.0.0" name="Trakt Watchlist" version="1.0.0" provider-name="show_my_data_track">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.trakt" version="3.0.0"/>
     </requires>
-    <extension library="default.py" point="xbmc.python.script"/>
+    <extension library="default.py" point="xbmc.python.pluginsource">
+        <provides>video</provides>
+    </extension>
     <extension point="xbmc.service" library="service.py"/>
-    <extension point="xbmc.gui.mainFile" library="menu.py"/>
     <language>en_US</language>
     <platform>all</platform>
     <summary lang="en_US">View your Trakt watched movies and shows</summary>
-    <description lang="en_US">Display your watched movies and TV shows from your Trakt account. Requires script.module.trakt library.</description>
-    <disclaimer lang="en_US">Uses script.module.trakt for Trakt API integration.</disclaimer>
+    <description lang="en_US">Display your watched movies and TV shows from your Trakt account. Uses script.module.trakt library.</description>
     <assets>
         <icon>icon.png</icon>
         <fanart>fanart.jpg</fanart>
