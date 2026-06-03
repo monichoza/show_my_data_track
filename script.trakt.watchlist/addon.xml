@@ -2,26 +2,18 @@
 <addon id="script.trakt.watchlist" version="1.0.0" name="Trakt Watchlist" provider-name="show_my_data_track" extensionpoint="xbmc.python.script">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
-        <import addon="xbmcaddon" version="1.0.0"/>
-        <import addon="xbmcgui" version="1.0.0"/>
-        <import addon="xbmcplugin" version="1.0.0"/>
+        <import addon="script.module.trakt" version="3.0.0"/>
     </requires>
     <extension library="default.py" point="xbmc.python.script"/>
     <extension point="xbmc.service" library="service.py"/>
-    <extension point="xbmc.addon.repository">
-        <info>https://raw.githubusercontent.com/razzeee/script.trakt/master/addon.xml</info>
-        <checksum>https://raw.githubusercontent.com/razzeee/script.trakt/master/addon.xml.md5</checksum>
-        <datadir zip="true">https://raw.githubusercontent.com/razzeee/script.trakt/master/zips</datadir>
-    </extension>
     <extension point="xbmc.gui.mainFile" library="menu.py"/>
     <language>en_US</language>
     <platform>all</platform>
     <summary lang="en_US">View your Trakt watched movies and shows</summary>
-    <description lang="en_US">Display your watched movies and TV shows from your Trakt account. Requires script.trakt to be installed and configured with your Trakt API credentials.</description>
-    <disclaimer lang="en_US">This addon uses the script.trakt service for Trakt API access.</disclaimer>
+    <description lang="en_US">Display your watched movies and TV shows from your Trakt account. Requires script.module.trakt library.</description>
+    <disclaimer lang="en_US">Uses script.module.trakt for Trakt API integration.</disclaimer>
     <assets>
         <icon>icon.png</icon>
         <fanart>fanart.jpg</fanart>
-        <screenshot/>
     </assets>
 </addon>

@@ -6,8 +6,8 @@ A Kodi addon to display your watched movies and TV shows from your Trakt.tv acco
 
 - View all your watched movies with play counts
 - Browse your watched TV shows with episode counts  
-- View episode details for each show
-- Sync your watch history with Trakt.tv
+- Uses **script.module.trakt** library for API calls (no custom OAuth code needed)
+- Simple and lightweight implementation
 - Background service for automatic data refresh
 - Context menu integration for Trakt actions
 
